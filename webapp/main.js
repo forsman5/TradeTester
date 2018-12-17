@@ -1,6 +1,7 @@
 var http = require('http');
 var path = require('path');
 var request = require('request');
+var secrets = require("./secrets");
 const express = require('express');
 const bodyParser = require("body-parser");
 const app = express()
@@ -22,7 +23,7 @@ function getPrice (symbol, callback) {
      { function: 'TIME_SERIES_INTRADAY',
        symbol: symbol,
        interval: '1min',
-       apikey: 'P6JVHT8KMR1ZZMAK' },
+       apikey: secrets.API_KEY },
     headers: { 'cache-control': 'no-cache' } };
 
   request(options, function (error, response, body) {
