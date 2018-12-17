@@ -1,12 +1,15 @@
-competition
-  - id text
-  - name text
-  - join_password blob
-  - admin_password blob
-  - starting_capital int
-  - start_date text
-  - end_date text
+CREATE TABLE "competition" (
+	"id"	TEXT,
+	"start_date"	TEXT NOT NULL,
+	"end_date"	TEXT,
+	"starting_capital"	INTEGER NOT NULL DEFAULT 1000000,
+	"name"	TEXT,
+	"admin_password"	BLOB NOT NULL,
+	"join_password"	BLOB,
+	PRIMARY KEY("id")
+);
 
+/*
 team
   - id text
   - competition_id text
@@ -18,3 +21,4 @@ portfolio
   - symbol text (together with team_id is primary key)
   - team_id text
   - count int
+*/
