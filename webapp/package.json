@@ -1,0 +1,28 @@
+{
+  "name": "tradetesterweb",
+  "version": "1.0.0",
+  "description": "WebApp for TradeTester API",
+  "main": "main.js",
+  "dependencies": {
+    "ejs": "^2.6.1",
+    "express": "^4.16.4",
+    "sqlite3": "^4.0.4"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "node main.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/forsman5/TradeTester.git"
+  },
+  "keywords": [
+    "trading"
+  ],
+  "author": "Joe Forsman",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/forsman5/TradeTester/issues"
+  },
+  "homepage": "https://github.com/forsman5/TradeTester#readme"
+}
