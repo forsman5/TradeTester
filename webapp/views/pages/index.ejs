@@ -9,11 +9,16 @@
     <link rel="stylesheet" type="text/css" href="/css/style.css">
   </head>
   <body>
-    <form action="/" method="post">
-      <input name="symbol" type="text" placeholder="Enter a symbol" required>
-      <input type="submit" value="Get Value">
-    </form>
-  </body>
+    <% if (price == null) { %>
+      <form action="/" method="post">
+        <input name="symbol" type="text" placeholder="Enter a symbol" required>
+        <input type="submit" value="Get Value">
+      </form>
+    </body>
+  <% } else { %>
+    <p> <%= symbol %> </p>
+    <p> <%= price %> </p>
+  <% } %>
 </html>
 
 <% include ../partials/footer %>

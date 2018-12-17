@@ -1,21 +1,56 @@
 var http = require('http');
 var path = require('path');
-const express = require('express')
+var request = require('request');
+const express = require('express');
+const bodyParser = require("body-parser");
 const app = express()
 const port = 8080
 
 //point all requests for static resources to the resources folder automatically
 app.use(express.static(path.join(__dirname, '/resources')));
+app.use(bodyParser.urlencoded({ extended: true }));
 
 app.set('view engine', 'ejs');
 
+// returns -1 if not found
+function getPrice (symbol, callback) {
+  console.log(symbol)
+
+  var options = { method: 'GET',
+    url: 'https://www.alphavantage.co/query',
+    qs:
+     { function: 'TIME_SERIES_INTRADAY',
+       symbol: symbol,
+       interval: '1min',
+       apikey: 'P6JVHT8KMR1ZZMAK' },
+    headers: { 'cache-control': 'no-cache' } };
+
+  request(options, function (error, response, body) {
+    if (error) throw new Error(error);
+
+    var parsed = JSON.parse(body);
+
+    var lastRefreshed = parsed["Meta Data"]["3. Last Refreshed"];
+
+    callback(parsed["Time Series (1min)"][lastRefreshed]["4. close"]);
+  });
+}
+
 // routes
 app.get('/', function (req, res) {
-  res.render('pages/index', {});
+  res.render('pages/index', {
+    symbol: null,
+    price: null
+  });
 });
 
 app.post('/', function (req, res) {
-  // TODO
+  getPrice(req.body.symbol, function(price) {
+    res.render('pages/index', {
+      symbol: req.body.symbol,
+      price: price
+    });
+  });
 });
 
 app.listen(port, function () {

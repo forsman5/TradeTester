@@ -4,8 +4,10 @@
   "description": "WebApp for TradeTester API",
   "main": "main.js",
   "dependencies": {
+    "body-parser": "^1.18.3",
     "ejs": "^2.6.1",
     "express": "^4.16.4",
+    "request": "^2.88.0",
     "sqlite3": "^4.0.4"
   },
   "devDependencies": {},
