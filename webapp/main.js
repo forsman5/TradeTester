@@ -15,8 +15,6 @@ app.set('view engine', 'ejs');
 
 // returns -1 if not found
 function getPrice (symbol, callback) {
-  console.log(symbol)
-
   var options = { method: 'GET',
     url: 'https://www.alphavantage.co/query',
     qs:
@@ -31,9 +29,13 @@ function getPrice (symbol, callback) {
 
     var parsed = JSON.parse(body);
 
-    var lastRefreshed = parsed["Meta Data"]["3. Last Refreshed"];
+    if (!("Error Message" in parsed)) {
+      var lastRefreshed = parsed["Meta Data"]["3. Last Refreshed"];
 
-    callback(parsed["Time Series (1min)"][lastRefreshed]["4. close"]);
+      callback(parsed["Time Series (1min)"][lastRefreshed]["4. close"]);
+    } else {
+      callback(-1);
+    }
   });
 }
 
@@ -47,8 +49,13 @@ app.get('/', function (req, res) {
 
 app.post('/', function (req, res) {
   getPrice(req.body.symbol, function(price) {
+    sym = req.body.symbol;
+    if (price == -1) {
+      sym = null;
+    }
+
     res.render('pages/index', {
-      symbol: req.body.symbol,
+      symbol: sym,
       price: price
     });
   });
