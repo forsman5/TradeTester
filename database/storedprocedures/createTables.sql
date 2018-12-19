@@ -1,4 +1,8 @@
-CREATE TABLE "competition" (
+DROP TABLE IF EXISTS competitions;
+DROP TABLE IF EXISTS teams;
+DROP TABLE IF EXISTS portfolios;
+
+CREATE TABLE "competitions" (
 	"id"	TEXT,
 	"start_date"	TEXT NOT NULL,
 	"end_date"	TEXT,
@@ -10,15 +14,15 @@ CREATE TABLE "competition" (
 );
 
 /*
-team
+teams
   - id text
   - competition_id text
-  - name text
+  - username text
   - password blob
   - api_key text
   - current_capital int
 
-portfolio
+portfolios
   - symbol text (together with team_id is primary key)
   - team_id text
   - count int
