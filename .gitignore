@@ -64,3 +64,4 @@ typings/
 
 # Database
 *.db
+*.db-journal

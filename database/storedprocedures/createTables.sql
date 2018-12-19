@@ -15,6 +15,7 @@ team
   - competition_id text
   - name text
   - password blob
+  - api_key text
   - current_capital int
 
 portfolio
