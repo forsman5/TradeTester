@@ -20,10 +20,18 @@ CREATE TABLE competitions (
   FOREIGN KEY (creator_id) REFERENCES accounts(id) ON DELETE CASCADE
 );
 
+/* active_state:
+*  0 - pending
+* -1 - invite rejected
+* -2 - quit
+*  1 - active
+*/
+
 CREATE TABLE competition_members (
   account_id INTEGER NOT NULL REFERENCES accounts(id),
   competition_id INTEGER NOT NULL REFERENCES competitions(id),
   capital INTEGER NOT NULL,
+  active_state INTEGER NOT NULL DEFAULT 0,
   PRIMARY KEY(account_id, competition_id)
 );
 

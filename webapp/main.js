@@ -6,6 +6,8 @@ const express = require('express');
 const app = express()
 const port = 8080
 
+var queries = require('./queries')
+
 // cryptography
 var passport = require("passport");
 var bcrypt = require("bcrypt");
@@ -30,7 +32,7 @@ app.use(passport.session());
 
 // passport configuration
 passport.use(new Strategy(function(username, password, done) {
-  db.get('SELECT * FROM accounts WHERE username = ?', username, function(err, row) {
+  db.get(queries.getAccountByUsername, username, function(err, row) {
     if (!row) return done(null, false);
 
     if (bcrypt.compareSync(password, row.pass)) {
@@ -46,7 +48,7 @@ passport.serializeUser(function(user, done) {
 });
 
 passport.deserializeUser(function(id, done) {
-  db.get('SELECT * FROM accounts WHERE id = ?', [id], function(err, row) {
+  db.get(queries.getAccountById, [id], function(err, row) {
     if (!row) {
       console.log(err.message);
       return done(null, false);
@@ -139,7 +141,7 @@ app.post('/signup', function(req, res) {
   // TODO:  check if username is unique
 
   // insert one row into the langs table
-  db.run('INSERT INTO accounts(username, pass, api_key) VALUES(?, ?, ?)', [req.body.username, hash, api_key], function(err) {
+  db.run(queries.insertAccount, [req.body.username, hash, api_key], function(err) {
     if (err) {
       console.log(err.message);
     } else {
