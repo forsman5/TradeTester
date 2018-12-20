@@ -6,6 +6,7 @@ module.exports = {
   // todo
 
   // take in everything but the id (because autoincrement) of this new competition
+  // order of parameters is as given in the create table statement
   insertCompetition: '',
   getCompetitionById: '',
 

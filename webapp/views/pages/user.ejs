@@ -1,4 +1,27 @@
 <% include ../partials/head %>
 <% include ../partials/header %>
 
+<p>Trade Tester</p>
+<p></p>
+
+<p> hello, <%= user.username %></p>
+<a href="/logout">Log Out</a>
+<a href = "/newCompetition">New Competition</a>
+
+<% if (ownedCompetitions) { %>
+  <div><p> Your Owned Competitions </p>
+    <table>
+      <!-- TODO -->
+    </table>
+  <div>
+<% } %>
+
+<% if (participantCompetitions) { %>
+  <div> <p> Competitions You Are In </p>
+    <table>
+      <!-- TODO -->
+    </table>
+  </div>
+<% } %>
+
 <% include ../partials/footer %>

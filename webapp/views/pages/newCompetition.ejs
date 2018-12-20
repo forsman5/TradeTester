@@ -1,4 +1,26 @@
 <% include ../partials/head %>
 <% include ../partials/header %>
 
+<form action="/newCompetition" method="post">
+    <div>
+        <label>Competition Name:</label>
+        <input type="text" name="name"/>
+    </div>
+    <div>
+        <label>Start Date:</label>
+        <input type="text" name="startDate"/>
+    </div>
+    <div>
+        <label>End Date:</label>
+        <input type="text" name="endDate"/>
+    </div>
+    <div>
+        <label>Starting Capital:</label>
+        <input type="text" name="startingCapital"/>
+    </div>
+    <div>
+        <input type="submit" value="Log In"/>
+    </div>
+</form>
+
 <% include ../partials/footer %>

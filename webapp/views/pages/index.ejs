@@ -7,11 +7,10 @@
 <% if (!user) { %>
   <a href = "/login">Log In</a>
   <a href = "/signup">Sign Up</a>
-  <!-- TODO user page -->
-  <a href = "/newCompetition">New Competition</a>
 <% } else { %>
-  <p> hello, <%= user.username %> </p>
+  <p> hello, <a href='/user'><%= user.username %></a> </p>
   <a href="/logout">Log Out</a>
+  <a href = "/newCompetition">New Competition</a>
 <% } %>
 
 <% if (symbol == null) { %>

@@ -93,15 +93,29 @@ function getPrice (symbol, callback) {
 // gets first
 
 app.get('/', function (req, res) {
-  res.render('pages/index', {
-    symbol: null,
-    price: null,
-    user: req.user
-  });
+  if (req.user) {
+    req.redirect('/user');
+  } else {
+    res.render('pages/index', {
+      symbol: null,
+      price: null
+    });
+  }
+});
+
+app.get('/user', function(req, res) {
+  if (req.user) {
+    res.render('pages/user', {
+      user: req.user
+    });
+  } else {
+    res.redirect('/');
+  }
 });
 
 app.get('/login', function(req, res) {
   // return the log in page
+  req.logout();
   res.render('pages/login', {});
 });
 
@@ -110,23 +124,54 @@ app.get('/signup', function(req, res) {
   res.render('pages/signup', {});
 });
 
-// posts below
-
 app.get('/logout', function(req, res) {
   req.logout();
   res.redirect('/');
 });
 
+app.get('/competitions/:competitionId', function(req, res) {
+  db.get(queries.getCompetitionById, [req.params.competitionId], function(err, row) {
+    if (err) {
+      console.log(err.message);
+    }
+
+    res.render('pages/competition', {
+      user: req.user,
+      competition: row
+    });
+  })
+});
+
+// posts below
+
+app.post('/newCompetition', function (req, res) {
+  if (!req.user) {
+    req.redirect('/');
+  }
+
+  db.run(queries.insertCompetition, [req.user.id, req.startDate, req.endDate, req.startingCapital, req.body.name], function(err) {
+    if (err) {
+      console.log(err.message);
+    }
+
+    req.redirect('/user');
+  });
+});
+
 app.post('/login', function(req, res) {
-    passport.authenticate('local', function(err, user) {
-      req.logIn(user, function(err) {
-        if (err) {
-          console.log(err.message);
-        } else {
-          return res.redirect('/');
-        }
-      });
-    })(req, res);
+  if (req.user) {
+    req.redirect('/user');
+  }
+
+  passport.authenticate('local', function(err, user) {
+    req.logIn(user, function(err) {
+      if (err) {
+        console.log(err.message);
+      } else {
+        return res.redirect('/');
+      }
+    });
+  })(req, res);
 });
 
 app.post('/signup', function(req, res) {
