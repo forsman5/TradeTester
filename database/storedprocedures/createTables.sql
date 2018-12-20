@@ -13,6 +13,21 @@ CREATE TABLE "competitions" (
 	PRIMARY KEY("id")
 );
 
+CREATE TABLE "teams" (
+	"id" TEXT,
+	"competition_id" TEXT
+	"username" TEXT,
+	"password" BLOB,
+	"api_key" TEXT,
+	"current_capitol" INT
+	PRIMARY KEY('id')
+);
+CREATE TABLE "portfolios" (
+	"symbol" TEXT,
+	"team_id" TEXT,
+	count INT
+	PRIMARY KEY("team_id")
+);
 /*
 teams
   - id text
