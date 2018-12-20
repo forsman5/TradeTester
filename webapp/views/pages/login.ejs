@@ -1,11 +1,18 @@
 <% include ../partials/head %>
 <% include ../partials/header %>
 
-DONT PRESS THIS YET
 <form action="/login" method="post">
-  <input name="name" type="text" placeholder="username" required>
-  <input name="password" type="password" placeholder="password" required>
-  <input type="submit" value="login">
+    <div>
+        <label>Username:</label>
+        <input type="text" name="username"/>
+    </div>
+    <div>
+        <label>Password:</label>
+        <input type="password" name="password"/>
+    </div>
+    <div>
+        <input type="submit" value="Log In"/>
+    </div>
 </form>
 
 <% include ../partials/footer %>

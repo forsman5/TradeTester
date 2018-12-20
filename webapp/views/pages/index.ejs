@@ -4,13 +4,14 @@
 <p>Trade Tester</p>
 <p></p>
 
-<% if (user != null) { %>
-<a href="/logout">Log Out</a>
+<% if (!user) { %>
+  <a href = "/login">Log In</a>
+  <a href = "/signup">Sign Up</a>
+  <!-- TODO user page -->
+  <a href = "/newCompetition">New Competition</a>
 <% } else { %>
-<a href = "/login">Log In</a>
-<a href = "/signup">Sign Up</a>
-<!-- TODO user page -->
-<a href = "/newCompetition">New Competition</a>
+  <p> hello, <%= user.username %> </p>
+  <a href="/logout">Log Out</a>
 <% } %>
 
 <% if (symbol == null) { %>
