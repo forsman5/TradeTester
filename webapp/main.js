@@ -105,8 +105,14 @@ app.get('/', function (req, res) {
 
 app.get('/user', function(req, res) {
   if (req.user) {
-    res.render('pages/user', {
-      user: req.user
+    db.all(queries.getAccountsCompetitions, [req.user.id], function(err, ownedRows) {
+      db.all (queries.getAllParticipatingCompetitions, [req.user.id], function (err, participatingRows) {
+        res.render('pages/user', {
+          user: req.user,
+          ownedCompetitions: ownedRows,
+          participantCompetitions: participatingRows
+        });
+      });
     });
   } else {
     res.redirect('/');

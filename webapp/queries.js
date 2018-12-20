@@ -15,4 +15,7 @@ module.exports = {
 
   // get all user data (not just ids) that are participants of the given competition id
   getParticipantsOfCompetition: '',
+
+  // get all the data (*) of every competition that this user_id (parameter) is competing in
+  getAllParticipatingCompetitions: ''
 };
