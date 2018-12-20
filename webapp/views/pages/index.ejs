@@ -4,7 +4,14 @@
 <p>Trade Tester</p>
 <p></p>
 
-<form action="#"
+<% if (user != null) { %>
+<a href="/logout">Log Out</a>
+<% } else { %>
+<a href = "/login">Log In</a>
+<a href = "/signup">Sign Up</a>
+<!-- TODO user page -->
+<a href = "/newCompetition">New Competition</a>
+<% } %>
 
 <% if (symbol == null) { %>
   <% if (price == -1) { %>

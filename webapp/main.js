@@ -43,8 +43,22 @@ function getPrice (symbol, callback) {
 app.get('/', function (req, res) {
   res.render('pages/index', {
     symbol: null,
-    price: null
+    price: null,
+    user: null
   });
+});
+
+app.get('/login', function(req, res) {
+  // return the log in page
+});
+
+app.post('/logout', function(req, res) {
+
+});
+
+app.post('/login', function(req, res) {
+  // log the user in now
+  // TODO:
 });
 
 app.post('/', function (req, res) {
@@ -56,7 +70,8 @@ app.post('/', function (req, res) {
 
     res.render('pages/index', {
       symbol: sym,
-      price: price
+      price: price,
+      user: null
     });
   });
 });
