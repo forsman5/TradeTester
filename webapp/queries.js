@@ -18,5 +18,5 @@ module.exports = {
   updateApiKeyOfAccount: 'UPDATE accounts SET api_key = ? WHERE id = ?',
 
   // get all the data (*) of every competition that this user_id (parameter) is competing in
-  getAllParticipatingCompetitions: 'SELECT id, creator_id, start_date, end_date, starting_capital, name FROM competitions c INNER JOIN competition_members m ON m.competition_id = c.id WHERE account_id = ?'
+  getAllParticipatingCompetitions: 'SELECT id, creator_id, start_date, end_date, starting_capital, name FROM competitions c INNER JOIN competition_members m ON m.competition_id = c.id WHERE account_id = ? AND active_state = 1'
 };

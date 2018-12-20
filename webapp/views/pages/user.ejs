@@ -11,10 +11,25 @@
 <!-- this needs an are you sure TODO -->
 <p>Your API Key is: <%= user.api_key %> <form action="/newApiKey" method="post"><input type="submit" value ="Get A New API Key" /></form>
 
+<br><br>
+
 <% if (locals.ownedCompetitions) { %>
   <div><p> Your Owned Competitions </p>
     <table>
-      <!-- TODO -->
+      <tr>
+        <th>Name</th>
+        <th>Start Date</th>
+        <th>End Date</th>
+        <th>Starting Capital</th>
+      </tr>
+      <% for (var i = 0; i < ownedCompetitions.length; i++) { %>
+        <tr>
+          <td><%= ownedCompetitions[i].name %> </td>
+          <td><%= ownedCompetitions[i].start_date %></td>
+          <td><%= ownedCompetitions[i].end_date %></td>
+          <td><%= ownedCompetitions[i].starting_capital%></td>
+        </tr>
+      <% } %>
     </table>
   <div>
 <% } %>
@@ -22,7 +37,20 @@
 <% if (locals.participantCompetitions) { %>
   <div> <p> Competitions You Are In </p>
     <table>
-      <!-- TODO -->
+      <tr>
+        <th>Name</th>
+        <th>Start Date</th>
+        <th>End Date</th>
+        <th>Starting Capital</th>
+      </tr>
+      <% for (var i = 0; i < participantCompetitions.length; i++) { %>
+        <tr>
+          <td><%= participantCompetitions[i].name %> </td>
+          <td><%= participantCompetitions[i].start_date %></td>
+          <td><%= participantCompetitions[i].end_date %></td>
+          <td><%= participantCompetitions[i].starting_capital%></td>
+        </tr>
+      <% } %>
     </table>
   </div>
 <% } %>
