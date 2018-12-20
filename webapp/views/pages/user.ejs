@@ -8,6 +8,9 @@
 <a href="/logout">Log Out</a>
 <a href = "/newCompetition">New Competition</a>
 
+<!-- this needs an are you sure TODO -->
+<p>Your API Key is: <%= user.api_key %> <form action="/newApiKey" method="post"><input type="submit" value ="Get A New API Key" /></form>
+
 <% if (locals.ownedCompetitions) { %>
   <div><p> Your Owned Competitions </p>
     <table>

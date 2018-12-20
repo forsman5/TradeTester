@@ -113,8 +113,6 @@ app.get('/newCompetition', function(req, res) {
 
 app.get('/user', function(req, res) {
   if (req.user) {
-    /* unimplemented yet
-
     db.all(queries.getAccountsCompetitions, [req.user.id], function(err, ownedRows) {
       if (err) {
         console.log(err.message);
@@ -131,11 +129,6 @@ app.get('/user', function(req, res) {
           participantCompetitions: participatingRows
         });
       });
-    });
-
-    */
-    res.render('pages/user', {
-      user: req.user
     });
   } else {
     res.redirect('/');
@@ -178,7 +171,7 @@ app.post('/newCompetition', function (req, res) {
     res.redirect('/');
   }
 
-  db.run(queries.insertCompetition, [req.user.id, req.startDate, req.endDate, req.startingCapital, req.body.name], function(err) {
+  db.run(queries.insertCompetition, [req.user.id, req.body.startDate, req.body.endDate, req.body.startingCapital, req.body.name], function(err) {
     if (err) {
       console.log(err.message);
     }
@@ -194,7 +187,7 @@ app.post('/newApiKey', function(req, res) {
 
   newKey = uuidv4();
 
-  db.run(queries.updateApiKeyOfAccount, [req.user.id, newKey], function(err) {
+  db.run(queries.updateApiKeyOfAccount, [newKey, req.user.id], function(err) {
     if (err) {
       console.log(err.message);
     }
