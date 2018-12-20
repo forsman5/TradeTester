@@ -10,6 +10,9 @@ module.exports = {
   insertCompetition: '',
   getCompetitionById: '',
 
+  // given a user id and a new api_key, set the user's api key to the new value
+  updateApiKeyOfAccount: '',
+
   // get all competitions (*) that have the creator id of the paramater
   getAccountsCompetitions: '',
 

@@ -103,6 +103,14 @@ app.get('/', function (req, res) {
   }
 });
 
+app.get('/newCompetition', function(req, res) {
+  if (!req.user) {
+    res.redirect('/login');
+  }
+
+  res.render('pages/newCompetition', {user: req.user});
+});
+
 app.get('/user', function(req, res) {
   if (req.user) {
     /* unimplemented yet
@@ -177,6 +185,22 @@ app.post('/newCompetition', function (req, res) {
 
     res.redirect('/user');
   });
+});
+
+app.post('/newApiKey', function(req, res) {
+  if (!req.user) {
+    res.redirect('/login');
+  }
+
+  newKey = uuidv4();
+
+  db.run(queries.updateApiKeyOfAccount, [req.user.id, newKey], function(err) {
+    if (err) {
+      console.log(err.message);
+    }
+
+    res.redirect('/user');
+  })
 });
 
 app.post('/login', function(req, res) {
