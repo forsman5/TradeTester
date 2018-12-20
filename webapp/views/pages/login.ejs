@@ -1,6 +1,10 @@
 <% include ../partials/head %>
 <% include ../partials/header %>
 
+<% if (locals.errorMessage) { %>
+  <p> <%= errorMessage %> </p>
+<% } %>
+
 <form action="/login" method="post">
     <div>
         <label>Username:</label>

@@ -94,7 +94,7 @@ function getPrice (symbol, callback) {
 
 app.get('/', function (req, res) {
   if (req.user) {
-    req.redirect('/user');
+    res.redirect('/user');
   } else {
     res.render('pages/index', {
       symbol: null,
@@ -105,14 +105,29 @@ app.get('/', function (req, res) {
 
 app.get('/user', function(req, res) {
   if (req.user) {
+    /* unimplemented yet
+
     db.all(queries.getAccountsCompetitions, [req.user.id], function(err, ownedRows) {
+      if (err) {
+        console.log(err.message);
+      }
+
       db.all (queries.getAllParticipatingCompetitions, [req.user.id], function (err, participatingRows) {
+        if (err) {
+          console.log(err.message);
+        }
+
         res.render('pages/user', {
           user: req.user,
           ownedCompetitions: ownedRows,
           participantCompetitions: participatingRows
         });
       });
+    });
+
+    */
+    res.render('pages/user', {
+      user: req.user
     });
   } else {
     res.redirect('/');
@@ -152,7 +167,7 @@ app.get('/competitions/:competitionId', function(req, res) {
 
 app.post('/newCompetition', function (req, res) {
   if (!req.user) {
-    req.redirect('/');
+    res.redirect('/');
   }
 
   db.run(queries.insertCompetition, [req.user.id, req.startDate, req.endDate, req.startingCapital, req.body.name], function(err) {
@@ -160,13 +175,13 @@ app.post('/newCompetition', function (req, res) {
       console.log(err.message);
     }
 
-    req.redirect('/user');
+    res.redirect('/user');
   });
 });
 
 app.post('/login', function(req, res) {
   if (req.user) {
-    req.redirect('/user');
+    res.redirect('/user');
   }
 
   passport.authenticate('local', function(err, user) {
@@ -185,26 +200,40 @@ app.post('/signup', function(req, res) {
     return;
   }
 
+  // TODO : check if password meets requirements
+  if (false) {
+    res.render('pages/login', {errorMessage: "Password doesn't meet requirements!"});
+  }
+
   var hash = bcrypt.hashSync(req.body.password, SALT_ROUNDS);
 
   var api_key = uuidv4();
 
-  // TODO:  check if username is unique
-
-  // insert one row into the langs table
-  db.run(queries.insertAccount, [req.body.username, hash, api_key], function(err) {
+  db.all(queries.getAccountByUsername, [req.body.username], function(err, rows) {
     if (err) {
+      // sql error
       console.log(err.message);
+    } else if (rows) {
+      // this user name is already taken
+      res.render('pages/login', { errorMessage: 'Username already taken'});
     } else {
-      passport.authenticate('local', function(err, user) {
-        req.logIn(user, function(err) {
-          if (err) {
-            console.log(err.message);
-          } else {
-            return res.redirect('/');
-          }
-        });
-      })(req,res);
+      // this is a valid submission, add it
+
+      db.run(queries.insertAccount, [req.body.username, hash, api_key], function(err) {
+        if (err) {
+          console.log(err.message);
+        } else {
+          passport.authenticate('local', function(err, user) {
+            req.logIn(user, function(err) {
+              if (err) {
+                console.log(err.message);
+              } else {
+                return res.redirect('/');
+              }
+            });
+          })(req,res);
+        }
+      });
     }
   });
 });
@@ -219,7 +248,7 @@ app.post('/', function (req, res) {
     res.render('pages/index', {
       symbol: sym,
       price: price,
-      user: null
+      user: req.user
     });
   });
 });
