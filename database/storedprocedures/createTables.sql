@@ -1,7 +1,7 @@
-DROP TABLE IF EXISTS accounts;
-DROP TABLE IF EXISTS competitions;
 DROP TABLE IF EXISTS portfolios;
 DROP TABLE IF EXISTS competition_members;
+DROP TABLE IF EXISTS accounts;
+DROP TABLE IF EXISTS competitions;
 
 CREATE TABLE accounts (
 	id INTEGER PRIMARY KEY,

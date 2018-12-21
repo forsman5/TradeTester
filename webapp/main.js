@@ -49,8 +49,13 @@ passport.serializeUser(function(user, done) {
 
 passport.deserializeUser(function(id, done) {
   db.get(queries.getAccountById, [id], function(err, row) {
-    if (!row) {
+    if (err) {
       console.log(err.message);
+      return done(null, false);
+    }
+
+    if (!row) {
+      console.log('user not found');
       return done(null, false);
     }
 
@@ -157,11 +162,56 @@ app.get('/competitions/:competitionId', function(req, res) {
       console.log(err.message);
     }
 
-    res.render('pages/competition', {
-      user: req.user,
-      competition: row
+    params = {user: req.user, competition: row};
+
+    db.all(queries.getParticipantsOfCompetition, [row.id], function(err, competitorRows) {
+      if (err) {
+        console.log(err.message);
+      }
+
+      if (row.creator_id == req.user.id) {
+        params.allMembers = competitorRows;
+      }
+
+      var isCompetitor = false;
+
+      // only active competitors
+      params.competitors = competitorRows.filter(function (person) {
+        if (person.id == req.user.id) {
+          isCompetitor = true;
+        }
+
+        return person.active_state == 1;
+      });
+
+      // TODO attach valuation to each competitor
+
+      // TODO sort competitors by highest valuation first
+
+      if (isCompetitor) {
+        db.all(queries.getPortfolio, [row.id, req.user.id], function(err, portfolio) {
+          if (err) {
+            console.log(err.message);
+          }
+
+          params.portfolio = portfolio;
+
+          res.render('pages/competition', params);
+        })
+      } else {
+        res.render('pages/competition', params);
+      }
     });
   })
+});
+
+app.get('/joinCompetition', function(req, res) {
+  if (!req.user) {
+    res.redirect('/');
+  }
+
+  // TODO
+  res.render('pages/joinCompetition', {user: req.user});
 });
 
 // posts below
@@ -202,13 +252,18 @@ app.post('/login', function(req, res) {
   }
 
   passport.authenticate('local', function(err, user) {
-    req.logIn(user, function(err) {
-      if (err) {
-        console.log(err.message);
-      } else {
-        return res.redirect('/');
-      }
-    });
+    if (err) {
+      res.render('pages/login', {errorMessage: err.message});
+    } else {
+      req.logIn(user, function(err) {
+        if (err) {
+          console.log(err.message);
+          res.render('pages/login', {errorMessage: "user does not exist"});
+        } else {
+          return res.redirect('/');
+        }
+      });
+    }
   })(req, res);
 });
 
@@ -230,9 +285,9 @@ app.post('/signup', function(req, res) {
     if (err) {
       // sql error
       console.log(err.message);
-    } else if (rows) {
+    } else if (rows && rows.length > 0) {
       // this user name is already taken
-      res.render('pages/login', { errorMessage: 'Username already taken'});
+      res.render('pages/signUp', { errorMessage: 'Username already taken'});
     } else {
       // this is a valid submission, add it
 

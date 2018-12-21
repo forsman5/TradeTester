@@ -7,13 +7,14 @@
 <p> hello, <%= user.username %></p>
 <a href="/logout">Log Out</a>
 <a href = "/newCompetition">New Competition</a>
+<a href ="/joinCompetition">Join a Competition</a>
 
 <!-- this needs an are you sure TODO -->
 <p>Your API Key is: <%= user.api_key %> <form action="/newApiKey" method="post"><input type="submit" value ="Get A New API Key" /></form>
 
 <br><br>
 
-<% if (locals.ownedCompetitions) { %>
+<% if (locals.ownedCompetitions && ownedCompetitions.length > 0) { %>
   <div><p> Your Owned Competitions </p>
     <table>
       <tr>
@@ -24,7 +25,7 @@
       </tr>
       <% for (var i = 0; i < ownedCompetitions.length; i++) { %>
         <tr>
-          <td><%= ownedCompetitions[i].name %> </td>
+          <td><a href="/competitions/<%= ownedCompetitions[i].id %>"><%= ownedCompetitions[i].name %></a> </td>
           <td><%= ownedCompetitions[i].start_date %></td>
           <td><%= ownedCompetitions[i].end_date %></td>
           <td><%= ownedCompetitions[i].starting_capital%></td>
@@ -34,7 +35,7 @@
   <div>
 <% } %>
 
-<% if (locals.participantCompetitions) { %>
+<% if (locals.participantCompetitions && participantCompetitions.length > 0) { %>
   <div> <p> Competitions You Are In </p>
     <table>
       <tr>
@@ -45,7 +46,7 @@
       </tr>
       <% for (var i = 0; i < participantCompetitions.length; i++) { %>
         <tr>
-          <td><%= participantCompetitions[i].name %> </td>
+          <td><a href="/competitions/<%= participantCompetitions[i].id %>"> <%= participantCompetitions[i].name %> </a> </td>
           <td><%= participantCompetitions[i].start_date %></td>
           <td><%= participantCompetitions[i].end_date %></td>
           <td><%= participantCompetitions[i].starting_capital%></td>

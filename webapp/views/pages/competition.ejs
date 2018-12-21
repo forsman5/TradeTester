@@ -1,4 +1,70 @@
 <% include ../partials/head %>
 <% include ../partials/header %>
 
+<p><b> <%= competition.name %> </b></p>
+
+<% if (locals.user && locals.allMembers) { %>
+  <p>Manage Your Competition</p>
+
+  <table>
+    <tr>
+      <th>Username</th>
+      <th>Action</th>
+    </tr>
+    <% for (var i = 0; i < allMembers.length; i++) { %>
+      <tr>
+        <td><%= allMembers[i].username %></td>
+        <td>
+          <!-- TODO -->
+          <% if (allMembers[i].active_state == 0) { %>
+            <a href="#">Approve</a> <!-- Forms -->
+            <a href="#">Deny</a>
+          <% } else if (allMembers[i].active_state == 1) { %>
+            <a href="#">Kick</a>
+          <% } %>
+        </td>
+      </tr>
+    <% } %>
+  </table>
+<% } %>
+
+<% if (locals.user && locals.portfolio) { %>
+
+  <p> Your Stocks </p>
+  <table>
+    <tr>
+      <th>Stock</th>
+      <th>Shares</th>
+      <th>Value Per Share</th>
+      <th>Total Value</th>
+    </tr>
+    <% for (var i = 0; i < portfolio.length; i++ ) { %>
+      <tr>
+        <!-- TODO -->
+      </tr>
+    <% } %>
+  </table>
+
+  <!-- TODO: this, and add a confirm -->
+  <a href="#">Quit</a>
+
+<% } else if (user) { %>
+  <!-- TODO -->
+  <a href = "#"> Join </a>
+<% } %>
+
+<p><b> All Competitors </b></p>
+<table>
+  <tr>
+    <th>Username</th>
+    <th>Current Valutaion</th>
+  </tr>
+  <% for (var i = 0; i < competitors.length; i++) { %>
+    <tr>
+      <td><%= competitors[i].username %></td>
+      <!-- todo valuation -->
+    </tr>
+  <% } %>
+</table>
+
 <% include ../partials/footer %>
