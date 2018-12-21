@@ -1,12 +1,12 @@
 module.exports = {
   getAccountByUsername: 'SELECT * FROM accounts WHERE username = ?',
   getAccountById: 'SELECT * FROM accounts WHERE id = ?',
-  insertAccount: 'INSERT INTO accounts(username, pass, api_key) VALUES(?, ?, ?)',
+  getCompetitionById: 'SELECT * FROM competitions WHERE id = ?',
 
-  // take in everything but the id (because autoincrement) of this new competition
   // order of parameters is as given in the create table statement
   insertCompetition: 'INSERT INTO competitions(creator_id, start_date, end_date, starting_capital, name) VALUES(?, ?, ?, ?, ?)',
-  getCompetitionById: 'SELECT * FROM competitions WHERE id = ?',
+  insertAccount: 'INSERT INTO accounts(username, pass, api_key) VALUES(?, ?, ?)',
+  insertCompetitionMember: 'INSERT INTO competition_members(account_id, competition_id, capital, active_state) VALUES (?, ?, ?, ?)',
 
   // get all competitions that have the creator id of the paramater
   getAccountsCompetitions: 'SELECT * FROM competitions WHERE creator_id = ?',
@@ -18,9 +18,19 @@ module.exports = {
   updateApiKeyOfAccount: 'UPDATE accounts SET api_key = ? WHERE id = ?',
 
   // get all the data (*) of every competition that this user_id (parameter) is competing in
-  getAllParticipatingCompetitions: 'SELECT id, creator_id, start_date, end_date, starting_capital, name FROM competitions c INNER JOIN competition_members m ON m.competition_id = c.id WHERE account_id = ? AND active_state = 1',
+  getAllParticipatingCompetitions: 'SELECT id, creator_id, start_date, end_date, starting_capital, name FROM competitions c INNER JOIN competition_members m ON m.competition_id = c.id ' +
+                                   ' WHERE account_id = ? AND active_state = 1',
 
   activateMember: 'UPDATE competition_members SET active_state = 1 WHERE competition_id = ? and account_id = ?',
 
-  getPortfolio: 'SELECT * FROM portfolios WHERE competition_id = ? AND account_id = ?'
+  getPortfolio: 'SELECT * FROM portfolios WHERE competition_id = ? AND account_id = ?',
+
+  // these are used for searching
+  // where the second param is not already a competitor
+  getCompetitionsByUsername: 'SELECT competitions.id, username, start_date, end_date, starting_capital, name ' +
+                             'FROM competitions INNER JOIN accounts on creator_id = accounts.id WHERE username LIKE ? ' +
+                             'AND competitions.id NOT IN (SELECT competition_id FROM competition_members WHERE account_id = ?)',
+  getCompetitionsByCompName: 'SELECT competitions.id, username, start_date, end_date, starting_capital, name ' +
+                             'FROM competitions INNER JOIN accounts on creator_id = accounts.id WHERE name LIKE ? ' +
+                             'AND competitions.id NOT IN (SELECT competition_id FROM competition_members WHERE account_id = ?)',
 };

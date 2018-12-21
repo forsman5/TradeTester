@@ -1,4 +1,35 @@
 <% include ../partials/head %>
 <% include ../partials/header %>
 
+<form method="post" action="/joinCompetition">
+  <label>Search For</label>
+  <input type="radio" name = "method" value="username"/>Username<br>
+  <input type="radio" name = "method" value = "compName"/>Competition Name<br>
+  <input type="text" name="parameter"/>
+  <input type="submit" value="Search"/>
+</form>
+
+<% if (locals.results) { %>
+  <table>
+    <tr>
+      <th>Name</th>
+      <th>Creator Name</th>
+      <th>Start Date</th>
+      <th>End Date</th>
+      <th>Starting Capital</th>
+      <th>Action</th>
+    </tr>
+    <% for (var i = 0; i < results.length; i++ ) { %>
+      <tr>
+        <td><a href="/competitions/<%= results[i].id %>"> <%= results[i].name %></a></td>
+        <td><%= results[i].username %></td>
+        <td><%= results[i].start_date %></td>
+        <td><%= results[i].end_date %></td>
+        <td><%= results[i].starting_capital %></td>
+        <td><a href="#">TODO</a></td>
+      </tr>
+    <% } %>
+  </table>
+<% } %>
+
 <% include ../partials/footer %>

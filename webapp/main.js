@@ -207,10 +207,9 @@ app.get('/competitions/:competitionId', function(req, res) {
 
 app.get('/joinCompetition', function(req, res) {
   if (!req.user) {
-    res.redirect('/');
+    res.redirect('/login');
   }
 
-  // TODO
   res.render('pages/joinCompetition', {user: req.user});
 });
 
@@ -322,6 +321,28 @@ app.post('/', function (req, res) {
       price: price,
       user: req.user
     });
+  });
+});
+
+// this is for searching for one to join, not actually joining
+app.post('/joinCompetition', function(req, res) {
+  var query = "";
+  if (req.body.method == "username") {
+    query = queries.getCompetitionsByUsername;
+  } else {
+    // compName
+    query = queries.getCompetitionsByCompName;
+  }
+
+  var param = "%" + req.body.parameter + "%";
+
+  db.all(query, [param, req.user.id], function(err, rows) {
+    if (err) {
+      console.log(err.message);
+      res.redirect('/user');
+    }
+
+    res.render('pages/joinCompetition', {user: req.user, results: rows});
   });
 });
 
