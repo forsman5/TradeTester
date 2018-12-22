@@ -3,6 +3,8 @@
 
 <p><b> <%= competition.name %> </b></p>
 
+<p><a href="/">Go Home</a></p>
+
 <% if (locals.user && locals.allMembers) { %>
   <p>Manage Your Competition</p>
 
@@ -15,12 +17,23 @@
       <tr>
         <td><%= allMembers[i].username %></td>
         <td>
-          <!-- TODO -->
           <% if (allMembers[i].active_state == 0) { %>
-            <a href="#">Approve</a> <!-- Forms -->
-            <a href="#">Deny</a>
+            <form method="post" action="/approveRequest">
+              <input type="hidden" value="<%= competition.id %>" name="competition_id" />
+              <input type="hidden" value="<%= allMembers[i].id %>" name="user_id" />
+              <input type="submit" value="Approve Request"/>
+            </form>
+            <form method="post" action="/denyRequest">
+              <input type="hidden" value="<%= competition.id %>" name="competition_id" />
+              <input type="hidden" value="<%= allMembers[i].id %>" name="user_id" />
+              <input type="submit" value="Deny Request"/>
+            </form>
           <% } else if (allMembers[i].active_state == 1) { %>
-            <a href="#">Kick</a>
+            <form method="post" action="/denyRequest">
+              <input type="hidden" value="<%= competition.id %>" name="competition_id" />
+              <input type="hidden" value="<%= allMembers[i].id %>" name="user_id" />
+              <input type="submit" value="Kick"/>
+            </form>
           <% } %>
         </td>
       </tr>

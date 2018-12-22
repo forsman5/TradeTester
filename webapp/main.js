@@ -93,6 +93,23 @@ function getPrice (symbol, callback) {
   });
 }
 
+// checks if the given user is the owner of the given competition_id
+function isOwner (competitionId, user, failureCB, successCB) {
+  db.get(queries.getCompetitionById, [competitionId], function (err, row) {
+    if (err) {
+      console.log(err.message);
+    }
+
+    if (row.creator_id != user.id) {
+      // TODO error message
+      // perhaps a parameter?
+      failureCB();
+    }
+
+    successCB();
+  })
+}
+
 /* ROUTES */
 
 // gets first
@@ -162,6 +179,12 @@ app.get('/competitions/:competitionId', function(req, res) {
       console.log(err.message);
     }
 
+    if (!row) {
+      // TODO error message
+      res.redirect('/');
+      return;
+    }
+
     params = {user: req.user, competition: row};
 
     db.all(queries.getParticipantsOfCompetition, [row.id], function(err, competitorRows) {
@@ -169,7 +192,7 @@ app.get('/competitions/:competitionId', function(req, res) {
         console.log(err.message);
       }
 
-      if (row.creator_id == req.user.id) {
+      if (req.user && row.creator_id == req.user.id) {
         params.allMembers = competitorRows;
       }
 
@@ -177,7 +200,7 @@ app.get('/competitions/:competitionId', function(req, res) {
 
       // only active competitors
       params.competitors = competitorRows.filter(function (person) {
-        if (person.id == req.user.id) {
+        if (req.user && person.id == req.user.id) {
           isCompetitor = true;
         }
 
@@ -347,12 +370,22 @@ app.post('/joinCompetition', function(req, res) {
 });
 
 app.post('/addCompetitor', function(req, res) {
+  if (!req.user) {
+    res.redirect('/login');
+  }
+
   db.get(queries.getCompetitionById, [req.body.competition_id], function(err, row) {
     if (err) {
       console.log(err.message);
     }
 
-    db.run(queries.insertCompetitionMember, [req.user.id, req.body.competition_id, row.starting_capital, 0], function(err) {
+    var activeState = 0;
+
+    if (row.creator_id == req.user.id) {
+      activeState = 1;
+    }
+
+    db.run(queries.insertCompetitionMember, [req.user.id, req.body.competition_id, row.starting_capital, activeState], function(err) {
       if (err) {
         console.log(err);
       }
@@ -365,12 +398,54 @@ app.post('/addCompetitor', function(req, res) {
 });
 
 app.post('/removeCompetitor', function(req, res) {
+  if (!req.user) {
+    res.redirect('/login');
+  }
+
   db.run(queries.deleteCompetitionMember, [req.body.competition_id, req.user.id], function(err) {
     if (err) {
       console.log(err);
     }
 
     res.redirect('/user');
+  });
+});
+
+app.post('/approveRequest', function(req, res) {
+  if (!req.user) {
+    res.redirect('/login');
+  }
+
+  isOwner(req.body.competition_id, req.user, function() {res.redirect('/user'); }, function() {
+    db.run(queries.activateMember, [req.body.competition_id, req.body.user_id], function(err) {
+      if (err) {
+        console.log(err.message);
+      }
+
+      res.redirect('/competitions/' + req.body.competition_id);
+    });
+  });
+});
+
+/*
+ * this needs to be separate from remove competitor -
+ * you can only remove youreslf. if you are attempting to remove another, need a check to
+ * to ensure that you own the competition.
+ */
+app.post('/denyRequest', function(req, res) {
+  // first, check if the request is valid
+  if (!req.user) {
+    res.redirect('/login');
+  }
+
+  isOwner(req.body.competition_id, req.user, function() { res.redirect('/user'); }, function() {
+    db.run(queries.deleteCompetitionMember, [req.body.competition_id, req.body.user_id], function(err) {
+      if (err) {
+        console.log(err.message);
+      }
+
+      res.redirect('/competitions/' + req.body.competition_id);
+    });
   });
 });
 

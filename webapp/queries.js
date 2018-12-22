@@ -14,13 +14,13 @@ module.exports = {
   getAccountsCompetitions: 'SELECT * FROM competitions WHERE creator_id = ?',
 
   // get all user data (not just ids) that are participants of the given competition id
-  getParticipantsOfCompetition: 'SELECT id, username, pass, api_key FROM (accounts a INNER JOIN competition_members cm ON a.id = cm.account_id) WHERE competition_id = ?',
+  getParticipantsOfCompetition: 'SELECT id, username, pass, api_key, active_state FROM (accounts a INNER JOIN competition_members cm ON a.id = cm.account_id) WHERE competition_id = ?',
 
   // given a user id and a new api_key, set the user's api key to the new value
   updateApiKeyOfAccount: 'UPDATE accounts SET api_key = ? WHERE id = ?',
 
   // get all the data (*) of every competition that this user_id (parameter) is competing in
-  getAllParticipatingCompetitions: 'SELECT id, creator_id, start_date, end_date, starting_capital, name FROM competitions c INNER JOIN competition_members m ON m.competition_id = c.id ' +
+  getAllParticipatingCompetitions: 'SELECT id, creator_id, start_date, end_date, starting_capital, name, active_state FROM competitions c INNER JOIN competition_members m ON m.competition_id = c.id ' +
                                    ' WHERE account_id = ?',
 
   activateMember: 'UPDATE competition_members SET active_state = 1 WHERE competition_id = ? and account_id = ?',
