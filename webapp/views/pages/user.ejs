@@ -43,6 +43,8 @@
         <th>Start Date</th>
         <th>End Date</th>
         <th>Starting Capital</th>
+        <th>State</th>
+        <th>Action</th>
       </tr>
       <% for (var i = 0; i < participantCompetitions.length; i++) { %>
         <tr>
@@ -50,6 +52,8 @@
           <td><%= participantCompetitions[i].start_date %></td>
           <td><%= participantCompetitions[i].end_date %></td>
           <td><%= participantCompetitions[i].starting_capital%></td>
+          <td><% if (participantCompetitions[i].active_state === 1) { %> Active <% } else { %> Pending <% } %> </td> <!-- TODO more states -->
+          <td><form action="/removeCompetitor" method = "post"><input type="hidden" value="<%=participantCompetitions[i].id %>" name = "competition_id"/><input type="submit" value="Quit"/></form></td>
         </tr>
       <% } %>
     </table>

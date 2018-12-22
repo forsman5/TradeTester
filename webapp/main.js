@@ -346,6 +346,34 @@ app.post('/joinCompetition', function(req, res) {
   });
 });
 
+app.post('/addCompetitor', function(req, res) {
+  db.get(queries.getCompetitionById, [req.body.competition_id], function(err, row) {
+    if (err) {
+      console.log(err.message);
+    }
+
+    db.run(queries.insertCompetitionMember, [req.user.id, req.body.competition_id, row.starting_capital, 0], function(err) {
+      if (err) {
+        console.log(err);
+      }
+
+      // TODO change this depending on where its coming from
+      // join Competition page should stay there, competition page should return to user page
+      res.redirect('/user');
+    });
+  });
+});
+
+app.post('/removeCompetitor', function(req, res) {
+  db.run(queries.deleteCompetitionMember, [req.body.competition_id, req.user.id], function(err) {
+    if (err) {
+      console.log(err);
+    }
+
+    res.redirect('/user');
+  });
+});
+
 app.listen(port, function () {
    console.log("listening on " + port);
 });

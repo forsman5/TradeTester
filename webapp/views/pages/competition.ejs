@@ -45,12 +45,11 @@
     <% } %>
   </table>
 
-  <!-- TODO: this, and add a confirm -->
-  <a href="#">Quit</a>
+  <!-- TODO: add a confirm -->
+  <form action="/removeCompetitor" method = "post"><input type="hidden" value="<%=competition.id %>" name = "competition_id"/><input type="submit" value="Quit"/></form>
 
 <% } else if (user) { %>
-  <!-- TODO -->
-  <a href = "#"> Join </a>
+  <form method="post" action="/addCompetitor"><input type="hidden" value="<%= competition.id %>" name="competition_id" /><input type="submit" value="Request To Join"/></form>
 <% } %>
 
 <p><b> All Competitors </b></p>

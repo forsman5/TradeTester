@@ -26,10 +26,12 @@
         <td><%= results[i].start_date %></td>
         <td><%= results[i].end_date %></td>
         <td><%= results[i].starting_capital %></td>
-        <td><a href="#">TODO</a></td>
+        <td><form method="post" action="/addCompetitor"><input type="hidden" value="<%=results[i].id%>" name="competition_id" /><input type="submit" value="Request To Join"/></form></td>
       </tr>
     <% } %>
   </table>
 <% } %>
+
+<a href = "/user">Go Back</a>
 
 <% include ../partials/footer %>

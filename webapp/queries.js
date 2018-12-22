@@ -8,6 +8,8 @@ module.exports = {
   insertAccount: 'INSERT INTO accounts(username, pass, api_key) VALUES(?, ?, ?)',
   insertCompetitionMember: 'INSERT INTO competition_members(account_id, competition_id, capital, active_state) VALUES (?, ?, ?, ?)',
 
+  deleteCompetitionMember: 'DELETE FROM competition_members WHERE competition_id = ? and account_id = ?',
+
   // get all competitions that have the creator id of the paramater
   getAccountsCompetitions: 'SELECT * FROM competitions WHERE creator_id = ?',
 
@@ -19,7 +21,7 @@ module.exports = {
 
   // get all the data (*) of every competition that this user_id (parameter) is competing in
   getAllParticipatingCompetitions: 'SELECT id, creator_id, start_date, end_date, starting_capital, name FROM competitions c INNER JOIN competition_members m ON m.competition_id = c.id ' +
-                                   ' WHERE account_id = ? AND active_state = 1',
+                                   ' WHERE account_id = ?',
 
   activateMember: 'UPDATE competition_members SET active_state = 1 WHERE competition_id = ? and account_id = ?',
 
@@ -32,5 +34,5 @@ module.exports = {
                              'AND competitions.id NOT IN (SELECT competition_id FROM competition_members WHERE account_id = ?)',
   getCompetitionsByCompName: 'SELECT competitions.id, username, start_date, end_date, starting_capital, name ' +
                              'FROM competitions INNER JOIN accounts on creator_id = accounts.id WHERE name LIKE ? ' +
-                             'AND competitions.id NOT IN (SELECT competition_id FROM competition_members WHERE account_id = ?)',
+                             'AND competitions.id NOT IN (SELECT competition_id FROM competition_members WHERE account_id = ?)'
 };
