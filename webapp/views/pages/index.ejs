@@ -13,20 +13,4 @@
   <a href = "/signup">Sign Up</a>
 <% } %>
 
-<% if (symbol == null) { %>
-  <% if (price == -1) { %>
-    <p> That symbol doesnt exist! </p>
-  <% } %>
-
-  <p>Check the value of a stock symbol!</p>
-  <form action="/" method="post">
-    <input name="symbol" type="text" placeholder="Enter a symbol" required>
-    <input type="submit" value="Get Value">
-  </form>
-<% } else { %>
-  <p> <i>$<%= symbol %> </i></p>
-  <p> $<%= price %> </p>
-  <a href="/">Go Back</a>
-<% } %>
-
 <% include ../partials/footer %>

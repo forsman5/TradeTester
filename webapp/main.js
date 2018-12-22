@@ -155,6 +155,46 @@ async function processPortfolio(portfolio) {
   return newPortfolio;
 }
 
+/*
+ * TODO this will change, to take a callback at the very end
+ * used to process any portfolio from ids, not an already given portfolio
+ */
+function renderTrades(req, res, params) {
+  var failureCB = function() {
+    res.redirect('/');
+    return;
+  }
+
+  isActiveCompetitor(req.params.competitionId, req.user, failureCB, function(capital) {
+    db.get(queries.getCompetitionById, [req.params.competitionId], function(err, compRow) {
+      if (err) {
+        console.log(err.message);
+        failureCB();
+      }
+
+      if (!compRow) failureCB();
+
+      db.all(queries.getPortfolio, [req.params.competitionId, req.user.id], function(err, portfolio) {
+        if (err) {
+          console.log(err.message);
+          failureCB();
+        }
+
+        if (!portfolio) failureCB();
+
+        processPortfolio(portfolio).then(function(result) {
+          params.user = req.user;
+          params.competition = compRow;
+          params.capital = capital;
+          params.portfolio = result;
+
+          res.render('pages/trade', params);
+        });
+      });
+    });
+  });
+}
+
 /* ROUTES */
 
 // gets first
@@ -282,39 +322,7 @@ app.get('/joinCompetition', function(req, res) {
 });
 
 app.get('/competitions/:competitionId/trade', function(req, res) {
-  var failureCB = function() {
-    res.redirect('/');
-    return;
-  }
-
-  isActiveCompetitor(req.params.competitionId, req.user, failureCB, function(capital) {
-    db.get(queries.getCompetitionById, [req.params.competitionId], function(err, compRow) {
-      if (err) {
-        console.log(err.message);
-        failureCB();
-      }
-
-      if (!compRow) failureCB();
-
-      db.all(queries.getPortfolio, [req.params.competitionId, req.user.id], function(err, portfolio) {
-        if (err) {
-          console.log(err.message);
-          failureCB();
-        }
-
-        if (!portfolio) failureCB();
-
-        processPortfolio(portfolio).then(function(result) {
-          res.render('pages/trade', {
-            user: req.user,
-            competition: compRow,
-            capital: capital,
-            portfolio: result
-          });
-        });
-      });
-    });
-  });
+  renderTrades(req,res, {});
 });
 
 // posts below
@@ -413,19 +421,26 @@ app.post('/signup', function(req, res) {
   });
 });
 
-app.post('/', function (req, res) {
-  getPrice(req.body.symbol, function(price) {
-    sym = req.body.symbol;
-    if (price == -1) {
-      sym = null;
-    }
+app.post('/competitions/:competitionId/trade', function (req, res) {
+  if (req.body.option == "query") {
+    var promise = async function (sym) {
+      return await getPrice(sym);
+    }(req.body.symbol);
 
-    res.render('pages/index', {
-      symbol: sym,
-      price: price,
-      user: req.user
+    promise.then(function(price) {
+      var params = {};
+
+      if (price != -1) {
+        params.symbol = req.body.symbol;
+        params.price = price;
+      }
+
+      renderTrades(req, res, params);
     });
-  });
+  } else {
+    console.log('dangerous attempt detected - post to /competitions/id/trade');
+    res.redirect('/user');
+  }
 });
 
 // this is for searching for one to join, not actually joining

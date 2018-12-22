@@ -5,6 +5,7 @@
 <p>You are currently trading for the <a href="/competitions/<%=competition.id %>"><%= competition.name %></a> competition! </p>
 
 <br><p> Your capital: <%= capital %></p>
+<% var totalValue = capital %>
 
 <% if (portfolio.length > 0 ) { %>
   <table>
@@ -14,7 +15,6 @@
       <th>Value Per Share</th>
       <th>Total Value</th>
     </tr>
-    <% var totalValue = capital %>
     <% for (var i = 0; i < portfolio.length; i++ ) { %>
       <tr>
         <td><%= portfolio[i].symbol %></td>
@@ -25,8 +25,26 @@
       </tr>
     <% } %>
   </table>
+<% } %>
+<p>Your total valuation: <%= totalValue %></p>
 
-  <p>Your total valuation: <%= totalValue %></p>
+<p> Make new trades </p>
+<!-- TODO -->
+
+<p>Check the value of a stock symbol!</p>
+<form action="/competitions/<%= competition.id %>/trade" method="post">
+  <input name="symbol" type="text" placeholder="Enter a symbol" required/>
+  <input name="option" type="hidden" value="query"/>
+  <input type="submit" value="Get Value"/>
+</form>
+
+<% if (locals.symbol) { %>
+  <% if (price == -1) { %>
+    <p> That symbol doesnt exist! </p>
+  <% } else { %>
+    <p> <i>$<%= symbol %> </i></p>
+    <p> $<%= price %> </p>
+  <% } %>
 <% } %>
 
 <!-- TODO buy and sell forms -->
