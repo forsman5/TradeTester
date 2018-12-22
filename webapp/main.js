@@ -68,7 +68,7 @@ app.set('view engine', 'ejs');
 /* UTILITIES */
 
 // returns -1 if not found
-function getPrice (symbol, callback) {
+function getPrice (symbol) {
   var options = { method: 'GET',
     url: 'https://www.alphavantage.co/query',
     qs:
@@ -78,18 +78,20 @@ function getPrice (symbol, callback) {
        apikey: secrets.API_KEY },
     headers: { 'cache-control': 'no-cache' } };
 
-  request(options, function (error, response, body) {
-    if (error) throw new Error(error);
+  return new Promise(function(resolve, reject) {
+    request(options, function (error, response, body) {
+      if (error) throw new Error(error);
 
-    var parsed = JSON.parse(body);
+      var parsed = JSON.parse(body);
 
-    if (!("Error Message" in parsed)) {
-      var lastRefreshed = parsed["Meta Data"]["3. Last Refreshed"];
+      if (!("Error Message" in parsed)) {
+        var lastRefreshed = parsed["Meta Data"]["3. Last Refreshed"];
 
-      callback(parsed["Time Series (1min)"][lastRefreshed]["4. close"]);
-    } else {
-      callback(-1);
-    }
+        resolve(parsed["Time Series (1min)"][lastRefreshed]["4. close"]);
+      } else {
+        reject(-1);
+      }
+    });
   });
 }
 
@@ -98,6 +100,7 @@ function isOwner (competitionId, user, failureCB, successCB) {
   db.get(queries.getCompetitionById, [competitionId], function (err, row) {
     if (err) {
       console.log(err.message);
+      failureCB();
     }
 
     if (row.creator_id != user.id) {
@@ -108,6 +111,48 @@ function isOwner (competitionId, user, failureCB, successCB) {
 
     successCB();
   })
+}
+
+// TODO return false if this competition end date is before current date
+function isActiveCompetitor(competitionId, user, failureCB, successCB) {
+  if (!user) {
+    failureCB();
+    return;
+  }
+
+  db.get(queries.getActiveState, [competitionId, user.id], function(err, row) {
+    if (err) {
+      console.log(err.message);
+      failureCB();
+      return;
+    }
+
+    if (!row || row.active_state != 1) {
+        // TODO error message
+        // perhaps a parameter?
+        failureCB();
+        return;
+    }
+
+    successCB(row.capital);
+  });
+}
+
+async function processPortfolio(portfolio) {
+  newPortfolio = [];
+
+  for (var i = 0; i < portfolio.length; i++) {
+    var price = await getPrice(portfolio[i].symbol);
+
+    newPortfolio.push({
+      symbol: portfolio[i].symbol,
+      shares: portfolio[i].shares,
+      valuePerShare: price,
+      totalValue: price * portfolio[i].shares
+    });
+  }
+
+  return newPortfolio;
 }
 
 /* ROUTES */
@@ -234,6 +279,42 @@ app.get('/joinCompetition', function(req, res) {
   }
 
   res.render('pages/joinCompetition', {user: req.user});
+});
+
+app.get('/competitions/:competitionId/trade', function(req, res) {
+  var failureCB = function() {
+    res.redirect('/');
+    return;
+  }
+
+  isActiveCompetitor(req.params.competitionId, req.user, failureCB, function(capital) {
+    db.get(queries.getCompetitionById, [req.params.competitionId], function(err, compRow) {
+      if (err) {
+        console.log(err.message);
+        failureCB();
+      }
+
+      if (!compRow) failureCB();
+
+      db.all(queries.getPortfolio, [req.params.competitionId, req.user.id], function(err, portfolio) {
+        if (err) {
+          console.log(err.message);
+          failureCB();
+        }
+
+        if (!portfolio) failureCB();
+
+        processPortfolio(portfolio).then(function(result) {
+          res.render('pages/trade', {
+            user: req.user,
+            competition: compRow,
+            capital: capital,
+            portfolio: result
+          });
+        });
+      });
+    });
+  });
 });
 
 // posts below
@@ -387,7 +468,7 @@ app.post('/addCompetitor', function(req, res) {
 
     db.run(queries.insertCompetitionMember, [req.user.id, req.body.competition_id, row.starting_capital, activeState], function(err) {
       if (err) {
-        console.log(err);
+        console.log(err.message);
       }
 
       // TODO change this depending on where its coming from
@@ -404,7 +485,7 @@ app.post('/removeCompetitor', function(req, res) {
 
   db.run(queries.deleteCompetitionMember, [req.body.competition_id, req.user.id], function(err) {
     if (err) {
-      console.log(err);
+      console.log(err.message);
     }
 
     res.redirect('/user');

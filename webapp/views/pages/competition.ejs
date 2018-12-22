@@ -43,20 +43,9 @@
 
 <% if (locals.user && locals.portfolio) { %>
 
-  <p> Your Stocks </p>
-  <table>
-    <tr>
-      <th>Stock</th>
-      <th>Shares</th>
-      <th>Value Per Share</th>
-      <th>Total Value</th>
-    </tr>
-    <% for (var i = 0; i < portfolio.length; i++ ) { %>
-      <tr>
-        <!-- TODO -->
-      </tr>
-    <% } %>
-  </table>
+  <p>You're a competitor!</p>
+
+  <p> Go <a href="/competitions/<%=competition.id %>/trade">Trade</a></p>
 
   <!-- TODO: add a confirm -->
   <form action="/removeCompetitor" method = "post"><input type="hidden" value="<%=competition.id %>" name = "competition_id"/><input type="submit" value="Quit"/></form>

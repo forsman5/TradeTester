@@ -8,6 +8,9 @@ module.exports = {
   insertAccount: 'INSERT INTO accounts(username, pass, api_key) VALUES(?, ?, ?)',
   insertCompetitionMember: 'INSERT INTO competition_members(account_id, competition_id, capital, active_state) VALUES (?, ?, ?, ?)',
 
+  getActiveState: 'SELECT active_state, capital FROM competition_members WHERE competition_id = ? AND account_id = ?',
+
+  // TODO also delete portfolios
   deleteCompetitionMember: 'DELETE FROM competition_members WHERE competition_id = ? and account_id = ?',
 
   // get all competitions that have the creator id of the paramater

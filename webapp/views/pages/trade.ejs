@@ -1,0 +1,33 @@
+<% include ../partials/head %>
+<% include ../partials/header %>
+
+<p>Welcome, <%= user.username %>!<br></p>
+<p>You are currently trading for the <a href="/competitions/<%=competition.id %>"><%= competition.name %></a> competition! </p>
+
+<br><p> Your capital: <%= capital %></p>
+
+<% if (portfolio.length > 0 ) { %>
+  <table>
+    <tr>
+      <th>Stock</th>
+      <th>Shares</th>
+      <th>Value Per Share</th>
+      <th>Total Value</th>
+    </tr>
+    <% var totalValue = capital %>
+    <% for (var i = 0; i < portfolio.length; i++ ) { %>
+      <tr>
+        <td><%= portfolio[i].symbol %></td>
+        <td><%= portfolio[i].shares %></td>
+        <td><%= portfolio[i].valuePerShare %> </td>
+        <td><%= portfolio[i].totalValue %></td>
+        <% totalValue += portfolio[i].totalValue %>
+      </tr>
+    <% } %>
+  </table>
+
+  <p>Your total valuation: <%= totalValue %></p>
+<% } %>
+
+<!-- TODO buy and sell forms -->
+<% include ../partials/footer %>
