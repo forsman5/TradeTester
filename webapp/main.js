@@ -68,6 +68,9 @@ app.set('view engine', 'ejs');
 /* UTILITIES */
 
 // returns -1 if not found
+// TODO - last price checked cache
+// check cache first, if cache miss or result is older than say a minute, query api. then, update cache.
+// else return cached value. cache is table of symbol - price - last checked
 function getPrice (symbol) {
   var options = { method: 'GET',
     url: 'https://www.alphavantage.co/query',
@@ -122,7 +125,7 @@ function isActiveCompetitor(competitionId, user, failureCB, successCB) {
 
   db.get(queries.getActiveState, [competitionId, user.id], function(err, row) {
     if (err) {
-      console.log(err.message);
+      console.log(err.message + " 4");
       failureCB();
       return;
     }
@@ -195,11 +198,30 @@ function renderTrades(req, res, params) {
   });
 }
 
+// like the query - negative value to sell, positive quantity to buy
+function exchangeStock(competitionId, userId, symbol, price, quantity, capital, failureCB, successCB) {
+  db.run(queries.updatePortfolio, { $quantity: quantity, $competition: competitionId, $account: userId, $symbol: symbol}, function(err) {
+    if (err) {
+      console.log(err.message + '2');
+      failureCB('sql error 2');
+    }
+
+    db.run(queries.updateCapital, [capital - (quantity * price), competitionId, userId], function(err) {
+      if (err) {
+        console.log(err.message + '3');
+        failureCB('sql error 3');
+      }
+
+      successCB();
+    });
+  });
+}
+
 function sellStock(competitionId, userId, symbol, price, quantity, capital, failureCB, successCB) {
   db.all(queries.getPortfolio, [competitionId, userId], function(err, rows) {
     if (err) {
-      console.log(err.message);
-      failureCB('sql error');
+      console.log(err.message + '1');
+      failureCB('sql error 1');
     }
 
     var i = 0;
@@ -217,28 +239,18 @@ function sellStock(competitionId, userId, symbol, price, quantity, capital, fail
       if (rows[i].shares < quantity) {
         failureCB("you don't have enough shares to sell");
       } else {
-        db.run(queries.updatePortfolio, [rows[i].shares - quantity, competitionId, userId], function(err) {
-          if (err) {
-            console.log(err.message);
-            failureCB('sql error');
-          }
-
-          db.run(queries.updateCapital, [capital + (quantity * price), competitionId, userId], function(err) {
-            if (err) {
-              console.log(err.message);
-              failureCB('sql error');
-            }
-
-            successCB();
-          });
-        });
+        exchangeStock(competitionId, userId, symbol, price, -1 * quantity, capital, failureCB, successCB);
       }
     }
   });
 }
 
 function buyStock(competitionId, userId, symbol, price, quantity, capital, failureCB, successCB) {
-  failureCB('not implemented');
+  if (capital > quantity * price) {
+    exchangeStock(competitionId, userId, symbol, price, quantity, capital, failureCB, successCB);
+  } else {
+    failureCB("you can't afford that!")
+  }
 }
 
 /* ROUTES */
@@ -485,9 +497,9 @@ app.post('/competitions/:competitionId/trade', function (req, res) {
       if (req.body.option == "query") {
         renderTrades(req, res, { symbol: req.body.symbol, price: price });
       } else if (req.body.option == "buy") {
-        buyStock(req.body.competition, req.user.id, req.body.symbol, price, req.body.quantity, capital, failureCB, function () { renderTrades(req, res, {}); });
+        buyStock(req.body.competition, req.user.id, req.body.symbol.toUpperCase(), price, req.body.quantity, capital, failureCB, function () { renderTrades(req, res, {}); });
       } else if (req.body.option == "sell") {
-        sellStock(req.body.competition, req.user.id, req.body.symbol, price, req.body.quantity, capital, failureCB, function () { renderTrades(req, res, {}); });
+        sellStock(req.body.competition, req.user.id, req.body.symbol.toUpperCase(), price, req.body.quantity, capital, failureCB, function () { renderTrades(req, res, {}); });
       } else {
         console.log('dangerous attempt detected - post to /competitions/id/trade');
         failureCB('Bad route');
