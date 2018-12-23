@@ -29,22 +29,39 @@
 <p>Your total valuation: <%= totalValue %></p>
 
 <p> Make new trades </p>
-<!-- TODO -->
+<% if (locals.errorMessage) { %>
+  <p><%=errorMessage %></p>
+<% } %>
+
+<table>
+  <td><form method="post" action="/competitions/<%= competition.id %>/trade">
+    <input name="symbol" type = "text" placeholder = "Symbol"/>
+    <input name="option" type="hidden" value="buy"/>
+    <input name="competition" type="hidden" value="<%= competition.id %>"/>
+    <input type="text" name="quantity" placeholder = "Quantity"/>
+    <input type="submit" value="Buy"/>
+  </form></td>
+
+  <td><form method="post" action="/competitions/<%= competition.id %>/trade">
+    <input name="symbol" type = "text" placeholder = "Symbol"/>
+    <input name="option" type="hidden" value="sell"/>
+    <input name="competition" type="hidden" value="<%= competition.id %>"/>
+    <input type="text" name="quantity" placeholder = "Quantity"/>
+    <input type="submit" value="Sell"/>
+  </form></td>
+</table>
 
 <p>Check the value of a stock symbol!</p>
 <form action="/competitions/<%= competition.id %>/trade" method="post">
   <input name="symbol" type="text" placeholder="Enter a symbol" required/>
+  <input name="competition" type="hidden" value="<%= competition.id %>"/>
   <input name="option" type="hidden" value="query"/>
   <input type="submit" value="Get Value"/>
 </form>
 
 <% if (locals.symbol) { %>
-  <% if (price == -1) { %>
-    <p> That symbol doesnt exist! </p>
-  <% } else { %>
-    <p> <i>$<%= symbol %> </i></p>
-    <p> $<%= price %> </p>
-  <% } %>
+  <p> <i>$<%= symbol %> </i></p>
+  <p> $<%= price %> </p>
 <% } %>
 
 <!-- TODO buy and sell forms -->

@@ -422,25 +422,70 @@ app.post('/signup', function(req, res) {
 });
 
 app.post('/competitions/:competitionId/trade', function (req, res) {
-  if (req.body.option == "query") {
+  var failureCB = function(message) {
+      renderTrades(req, res, { errorMessage: message });
+  }
+
+  isActiveCompetitor(req.body.competition, req.user, function () { res.redirect('/user'); }, function(capital) {
     var promise = async function (sym) {
       return await getPrice(sym);
     }(req.body.symbol);
 
     promise.then(function(price) {
-      var params = {};
-
-      if (price != -1) {
-        params.symbol = req.body.symbol;
-        params.price = price;
+      if (price == -1) {
+        failureCB("That symbol does not exist");
       }
 
-      renderTrades(req, res, params);
+      if (req.body.option == "query") {
+        renderTrades(req, res, { symbol: req.body.symbol, price: price });
+      } else if (req.body.option == "buy") {
+
+      } else if (req.body.option == "sell") {
+        db.all(queries.getPortfolio, [req.body.competition, req.user.id], function(err, rows) {
+          if (err) {
+            console.log(err.message);
+            failureCB('sql error');
+          }
+
+          var i = 0;
+
+          // just walk down to where the right symobl is
+          while (i < rows.length && rows[i].symbol.toUpperCase() != req.body.symbol.toUpperCase()) {
+            i ++;
+          }
+
+          if (i == rows.length) {
+            // failure never found it
+            failureCB("that symbol doesn't exist in your portfolio!");
+          } else {
+            // rows[i] = the portfolio we want
+            if (rows[i].shares < req.body.quantity) {
+              failureCB("you don't have enough shares to sell");
+            } else {
+              db.run(queries.updatePortfolio, [rows[i].shares - req.body.quantity, req.body.competition, req.user.id], function(err) {
+                if (err) {
+                  console.log(err.message);
+                  failureCB('sql error');
+                }
+
+                db.run(queries.updateCapital, [capital + (req.body.quantity * price), req.body.competition, req.user.id], function(err) {
+                  if (err) {
+                    console.log(err.message);
+                    failureCB('sql error');
+                  }
+
+                  renderTrades(req, res, {});
+                });
+              });
+            }
+          }
+        });
+      } else {
+        console.log('dangerous attempt detected - post to /competitions/id/trade');
+        failureCB('Bad route');
+      }
     });
-  } else {
-    console.log('dangerous attempt detected - post to /competitions/id/trade');
-    res.redirect('/user');
-  }
+  });
 });
 
 // this is for searching for one to join, not actually joining

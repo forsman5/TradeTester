@@ -8,6 +8,9 @@ module.exports = {
   insertAccount: 'INSERT INTO accounts(username, pass, api_key) VALUES(?, ?, ?)',
   insertCompetitionMember: 'INSERT INTO competition_members(account_id, competition_id, capital, active_state) VALUES (?, ?, ?, ?)',
 
+  updatePortfolio: 'UPDATE portfolios SET shares = ? WHERE competition_id = ? AND account_id = ?',
+  updateCapital: 'UPDATE competition_members SET capital = ? WHERE competition_id = ? AND account_id = ?',
+
   getActiveState: 'SELECT active_state, capital FROM competition_members WHERE competition_id = ? AND account_id = ?',
 
   // TODO also delete portfolios
