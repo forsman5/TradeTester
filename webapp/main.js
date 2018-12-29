@@ -1,7 +1,6 @@
 var http = require('http');
 var path = require('path');
 var request = require('request');
-var secrets = require("./secrets");
 const express = require('express');
 const app = express()
 const port = 8080
@@ -72,14 +71,7 @@ app.set('view engine', 'ejs');
 // check cache first, if cache miss or result is older than say a minute, query api. then, update cache.
 // else return cached value. cache is table of symbol - price - last checked
 function getPrice (symbol) {
-  var options = { method: 'GET',
-    url: 'https://www.alphavantage.co/query',
-    qs:
-     { function: 'TIME_SERIES_INTRADAY',
-       symbol: symbol,
-       interval: '1min',
-       apikey: secrets.API_KEY },
-    headers: { 'cache-control': 'no-cache' } };
+  var options = { method: 'GET', url: 'https://api.iextrading.com/1.0/stock/' + symbol + '/price'};
 
   return new Promise(function(resolve, reject) {
     request(options, function (error, response, body) {
@@ -87,10 +79,8 @@ function getPrice (symbol) {
 
       var parsed = JSON.parse(body);
 
-      if (!("Error Message" in parsed)) {
-        var lastRefreshed = parsed["Meta Data"]["3. Last Refreshed"];
-
-        resolve(parsed["Time Series (1min)"][lastRefreshed]["4. close"]);
+      if (body != "Unknown symbol") {
+        resolve(body);
       } else {
         reject(-1);
       }
