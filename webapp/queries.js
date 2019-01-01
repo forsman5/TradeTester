@@ -2,11 +2,13 @@ module.exports = {
   getAccountByUsername: 'SELECT * FROM accounts WHERE username = ?',
   getAccountById: 'SELECT * FROM accounts WHERE id = ?',
   getCompetitionById: 'SELECT * FROM competitions WHERE id = ?',
+  getCachedPrice: 'SELECT * FROM price_cache WHERE symbol = ?',
 
   // order of parameters is as given in the create table statement
   insertCompetition: 'INSERT INTO competitions(creator_id, start_date, end_date, starting_capital, name) VALUES(?, ?, ?, ?, ?)',
   insertAccount: 'INSERT INTO accounts(username, pass, api_key) VALUES(?, ?, ?)',
   insertCompetitionMember: 'INSERT INTO competition_members(account_id, competition_id, capital, active_state) VALUES (?, ?, ?, ?)',
+  insertCachedPrice: 'INSERT OR REPLACE INTO price_cache(symbol, time_checked, price) VALUES (?,?,?)',
 
   // this always buys! buy negative to sell
   updatePortfolio: 'INSERT OR REPLACE INTO portfolios(competition_id, account_id, symbol, shares) ' +

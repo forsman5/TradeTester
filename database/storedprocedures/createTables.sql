@@ -3,6 +3,14 @@ DROP TABLE IF EXISTS competition_members;
 DROP TABLE IF EXISTS accounts;
 DROP TABLE IF EXISTS competitions;
 
+DROP TABLE IF EXISTS price_cache;
+
+CREATE TABLE price_cache (
+	symbol TEXT PRIMARY KEY,
+	time_checked INTEGER,
+	price INTEGER
+);
+
 CREATE TABLE accounts (
 	id INTEGER PRIMARY KEY,
 	username TEXT UNIQUE,

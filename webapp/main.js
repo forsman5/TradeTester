@@ -73,16 +73,55 @@ app.set('view engine', 'ejs');
 function getPrice (symbol) {
   var options = { method: 'GET', url: 'https://api.iextrading.com/1.0/stock/' + symbol + '/price'};
 
-  return new Promise(function(resolve, reject) {
+  symbol = symbol.toUpperCase();
+
+  var updateCache = function(price) {
+    var time = new Date().getTime();
+
+    db.run(queries.insertCachedPrice, [symbol, time, price], function(err) {
+      if (err) {
+        console.log(err);
+      }
+    });
+  };
+
+  var getNewPrice = function(resolve, reject) {
     request(options, function (error, response, body) {
       if (error) throw new Error(error);
 
-      var parsed = JSON.parse(body);
-
       if (body != "Unknown symbol") {
+        var parsed = JSON.parse(body);
+
+        updateCache(body);
+
+        // don't need this to happen in a callback - cachce insert can finish whenever
         resolve(body);
       } else {
-        reject(-1);
+        resolve(-1);
+      }
+    });
+  };
+
+  return new Promise(function (resolve,reject) {
+    db.get(queries.getCachedPrice, symbol, function(err, row) {
+      if (err) {
+        console.log(err);
+      }
+
+      var t = new Date().getTime();
+
+      if (row) {
+        // check if recent enough
+        var timeDiff = t - row.time_checked;
+
+        if ((timeDiff / 1000.0 ) < 60.0 ) {
+          // use this value
+          resolve(row.price);
+        } else {
+          getNewPrice(resolve, reject);
+        }
+      } else {
+        getNewPrice(resolve, reject);
       }
     });
   });
