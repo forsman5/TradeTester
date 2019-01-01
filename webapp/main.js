@@ -553,13 +553,7 @@ app.post('/removeCompetitor', function(req, res) {
     res.redirect('/login');
   }
 
-  db.run(queries.deleteCompetitionMember, [req.body.competition_id, req.user.id], function(err) {
-    if (err) {
-      console.log(err.message);
-    }
-
-    res.redirect('/user');
-  });
+  queries.deleteCompetitionMember(db, req.body.competition_id, req.user.id, function() { res.redirect('/user'); });
 });
 
 app.post('/approveRequest', function(req, res) {
@@ -590,11 +584,7 @@ app.post('/denyRequest', function(req, res) {
   }
 
   isOwner(req.body.competition_id, req.user, function() { res.redirect('/user'); }, function() {
-    db.run(queries.deleteCompetitionMember, [req.body.competition_id, req.body.user_id], function(err) {
-      if (err) {
-        console.log(err.message);
-      }
-
+    queries.deleteCompetitionMember(db, req.body.competition_id, req.body.user_id, function() {
       res.redirect('/competitions/' + req.body.competition_id);
     });
   });

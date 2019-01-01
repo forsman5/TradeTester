@@ -17,8 +17,26 @@ module.exports = {
 
   getActiveState: 'SELECT active_state, capital FROM competition_members WHERE competition_id = ? AND account_id = ?',
 
-  // TODO also delete portfolios
-  deleteCompetitionMember: 'DELETE FROM competition_members WHERE competition_id = ? and account_id = ?',
+  deleteCompetitionMember: function(db, competition_id, account_id, callback) {
+    var dcm = 'DELETE FROM competition_members WHERE competition_id = ? and account_id = ?';
+    var dp = 'DELETE FROM portfolios WHERE competition_id = ? and account_id = ?';
+
+    var params = [competition_id, account_id];
+
+    db.run(dcm, params, function(err) {
+      if (err) {
+        console.log(err);
+      }
+
+      db.run(dp, params, function(err) {
+        if (err) {
+          console.log(err);
+        }
+
+        callback();
+      });
+    });
+  },
 
   // get all competitions that have the creator id of the paramater
   getAccountsCompetitions: 'SELECT * FROM competitions WHERE creator_id = ?',
